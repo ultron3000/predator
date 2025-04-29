@@ -3,206 +3,76 @@
 <head>
   <meta charset="UTF-8">
   <title>Movie Player</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body {
-      background: black;
-      color: #ffcc00;
       font-family: Arial, sans-serif;
+      background: #000;
+      color: #fff;
       text-align: center;
       margin: 0;
-      padding: 20px;
+      padding: 0;
     }
-    h1 {
-      margin-bottom: 20px;
-      font-size: 2em;
+    #loader {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      font-size: 30px;
+    }
+    #videoContainer {
+      margin-top: 60px;
     }
     video {
       width: 90%;
-      max-width: 1000px;
-      border: 3px solid #ffcc00;
-      border-radius: 15px;
+      max-width: 900px;
+      border: 5px solid #555;
+      border-radius: 10px;
       background: #000;
     }
-    #loading-spinner {
-      display: none;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      width: 60px;
-      height: 60px;
-      margin: -30px 0 0 -30px;
-      border: 8px solid #f3f3f3;
-      border-top: 8px solid #ffcc00;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      z-index: 999;
-    }
-    #loading-text {
-      display: none;
-      position: fixed;
-      top: 60%;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 1.2em;
-      font-weight: bold;
-    }
-    .caption-button {
-      margin-top: 10px;
-      background: #ffcc00;
-      color: black;
-      border: none;
-      padding: 8px 16px;
-      font-size: 1em;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-    .caption-button:hover {
-      background: #e6b800;
-    }
-    a {
-      display: inline-block;
-      margin-top: 20px;
-      color: #ffcc00;
-      font-weight: bold;
-      text-decoration: none;
-      font-size: 1.2em;
-    }
-    a:hover {
-      text-decoration: underline;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 </head>
 <body>
 
-<div id="loading-spinner"></div>
-<div id="loading-text">Loading movie...</div>
+<div id="loader">Loading...</div>
 
-<h1 id="movie-title">Loading...</h1>
+<h1 id="movieTitle"></h1>
 
-<video id="video" controls autoplay crossorigin="anonymous"></video>
-
-<br>
-<button class="caption-button" id="toggle-captions">Toggle Subtitles</button>
-<br><br>
-
-<a href="index.html">← Back to Movies</a>
+<div id="videoContainer">
+  <video id="moviePlayer" controls autoplay>
+    <track id="subtitleTrack" kind="subtitles" srclang="en" label="English">
+    Your browser does not support HTML5 video.
+  </video>
+</div>
 
 <script>
+// Hide loader once video metadata is loaded
+document.getElementById('moviePlayer').addEventListener('loadeddata', () => {
+  document.getElementById('loader').style.display = 'none';
+});
+
+// Parse parameters
 const params = new URLSearchParams(window.location.search);
 const title = params.get('title');
+const year = params.get('year');
 const videoUrl = params.get('video');
-const subtitleUrl = params.get('subtitle');
-const currentIndex = parseInt(params.get('index'), 10);
 
-const movieTitle = document.getElementById('movie-title');
-const videoPlayer = document.getElementById('video');
-const spinner = document.getElementById('loading-spinner');
-const loadingText = document.getElementById('loading-text');
-const toggleCaptionsBtn = document.getElementById('toggle-captions');
+// Update title
+document.getElementById('movieTitle').textContent = `${title.replaceAll('%20', ' ')} (${year})`;
 
-const saveKey = `continue-${title}`;
+// Update video source
+const video = document.getElementById('moviePlayer');
+const source = document.createElement('source');
+source.src = videoUrl;
+source.type = 'application/x-mpegURL'; // assuming HLS streams
+video.appendChild(source);
+video.load();
 
-const movies = [
-  { title: "Prey (2022)", video: "https://s3ae.hlmarkscadei.sbs:443/v4/pq/tyxgh/index-f2-v1-a1.txt" },
-  { title: "Predator (1987)", video: "https://sxic.shahcanna.sbs:443/v4/61/xo8k3/index-f1-v1-a1.txt" },
-  { title: "Predator 2 (1990)", video: "https://sojg.desrocherswick.sbs:443/v4/ox/kvj9z/index-f2-v1-a1.txt" },
-  { title: "AVP: Alien vs. Predator (2004)", video: "https://sojg.mejorados.sbs/v4/m9/pjn3y/index-f1-v1-a1.txt" },
-  { title: "Aliens vs Predator: Requiem (2007)", video: "https://sxic.seawrightqrg.sbs:443/v4/ck/kfpnr/index-f2-v1-a1.txt" },
-  { title: "Predators (2010)", video: "https://sojg.bsmlecuyer.sbs:443/v4/np/i8paq/index-f2-v1-a1.txt" },
-  { title: "The Predator (2018)", video: "https://skra.carbajalgpsh.sbs:443/v4/us/kviy1/index-f2-v1-a1.txt" }
-];
-
-function showSpinner() {
-  spinner.style.display = 'block';
-  loadingText.style.display = 'block';
-}
-function hideSpinner() {
-  spinner.style.display = 'none';
-  loadingText.style.display = 'none';
-}
-
-movieTitle.textContent = title;
-showSpinner();
-
-if (Hls.isSupported()) {
-  const hls = new Hls();
-  hls.loadSource(videoUrl);
-  hls.attachMedia(videoPlayer);
-  hls.on(Hls.Events.MANIFEST_PARSED, function() {
-    videoPlayer.play();
-    hideSpinner();
-    const lastTime = localStorage.getItem(saveKey);
-    if (lastTime) {
-      videoPlayer.currentTime = parseFloat(lastTime);
-    }
-  });
-} else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
-  videoPlayer.src = videoUrl;
-  videoPlayer.addEventListener('loadedmetadata', () => {
-    videoPlayer.play();
-    hideSpinner();
-    const lastTime = localStorage.getItem(saveKey);
-    if (lastTime) {
-      videoPlayer.currentTime = parseFloat(lastTime);
-    }
-  });
-} else {
-  alert("Your browser doesn't support HLS!");
-  window.location.href = "index.html";
-}
-
-if (subtitleUrl) {
-  const track = document.createElement('track');
-  track.kind = 'subtitles';
-  track.label = 'English';
-  track.srclang = 'en';
-  track.src = subtitleUrl;
-  track.default = true;
-  videoPlayer.appendChild(track);
-}
-
-setInterval(() => {
-  if (!isNaN(videoPlayer.currentTime)) {
-    localStorage.setItem(saveKey, videoPlayer.currentTime);
-  }
-}, 5000);
-
-window.addEventListener('beforeunload', () => {
-  if (!isNaN(videoPlayer.currentTime)) {
-    localStorage.setItem(saveKey, videoPlayer.currentTime);
-  }
-});
-
-toggleCaptionsBtn.addEventListener('click', () => {
-  for (const track of videoPlayer.textTracks) {
-    track.mode = track.mode === 'showing' ? 'hidden' : 'showing';
-  }
-});
-
-document.addEventListener('keydown', function(e) {
-  if (e.code === 'ArrowRight') videoPlayer.currentTime += 10;
-  else if (e.code === 'ArrowLeft') videoPlayer.currentTime -= 10;
-  else if (e.code === 'Space') {
-    e.preventDefault();
-    videoPlayer.paused ? videoPlayer.play() : videoPlayer.pause();
-  }
-});
-
-videoPlayer.addEventListener('ended', () => {
-  const nextMovie = movies[currentIndex + 1];
-  if (nextMovie) {
-    const nextUrl = `player.html?title=${encodeURIComponent(nextMovie.title)}&video=${encodeURIComponent(nextMovie.video)}&index=${currentIndex + 1}`;
-    window.location.href = nextUrl;
-  } else {
-    window.location.href = "index.html";
-  }
-});
+// Optional subtitles if available
+const track = document.getElementById('subtitleTrack');
+track.src = `subtitles/${title}.vtt`; // must match title
 </script>
 
 </body>
