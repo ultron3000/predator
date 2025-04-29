@@ -2,78 +2,239 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <title>Predator Movies - Full App</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Select a Predator Movie</title>
   <style>
-    body {
+    /* Global Styles */
+    * {
       margin: 0;
-      font-family: Arial, sans-serif;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Arial', sans-serif;
       background: black url('https://i.pinimg.com/736x/4c/2a/55/4c2a557353712d5c1b0e6836e54b978a.jpg') no-repeat center center fixed;
       background-size: cover;
       color: #fff;
-      text-align: center;
       padding: 20px;
+      min-height: 100vh;
     }
     h1 {
       color: #ffcc00;
-      margin-top: 30px;
+      text-align: center;
+      margin-bottom: 30px;
     }
-    .movie-container {
+    /* Movie List Styles */
+    #movie-list {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
       gap: 20px;
-      margin-top: 40px;
     }
     .movie-card {
-      background: rgba(255, 255, 255, 0.2);
+      background: rgba(0,0,0,0.7);
       border: 2px solid #ffcc00;
       border-radius: 10px;
-      padding: 15px;
+      padding: 10px;
       width: 200px;
       cursor: pointer;
+      text-align: center;
+      transition: all 0.3s;
       text-decoration: none;
       color: white;
-      transition: transform 0.3s, background 0.3s;
-      backdrop-filter: blur(5px);
     }
     .movie-card:hover {
-      background: rgba(255, 255, 255, 0.4);
+      background: rgba(255, 255, 255, 0.2);
       transform: scale(1.05);
     }
+    .movie-poster {
+      width: 100%;
+      height: 300px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
     .movie-title {
+      margin-top: 10px;
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+    /* Player Styles */
+    #player-section {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+    video {
+      width: 90%;
+      max-width: 1000px;
+      border: 3px solid #ffcc00;
+      border-radius: 12px;
+      background: black;
+    }
+    .back-button {
+      margin-top: 20px;
+      text-decoration: none;
+      color: #ffcc00;
       font-weight: bold;
       font-size: 1.2rem;
     }
+    .back-button:hover {
+      text-decoration: underline;
+    }
+    /* Loading Spinner */
+    #loading-spinner {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      border: 8px solid #f3f3f3;
+      border-top: 8px solid #ffcc00;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      animation: spin 1s linear infinite;
+      z-index: 1000;
+    }
+    @keyframes spin {
+      0% { transform: translate(-50%, -50%) rotate(0deg); }
+      100% { transform: translate(-50%, -50%) rotate(360deg); }
+    }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 </head>
 <body>
 
-<h1>Select a Predator Movie</h1>
+<h1 id="page-title">Select a Predator Movie</h1>
 
-<div class="movie-container">
-  <a class="movie-card" href="player.html?movie=https://s3ae.hlmarkscadei.sbs:443/v4/pq/tyxgh/index-f2-v1-a1.txt&title=Prey (2022)">
-    <div class="movie-title">Prey (2022)</div>
-  </a>
-  <a class="movie-card" href="player.html?movie=https://s3ae.hlmarkscadei.sbs:443/v4/43/tywo3/index-f2-v1-a1.txt&title=Predator (1987)">
-    <div class="movie-title">Predator (1987)</div>
-  </a>
-  <a class="movie-card" href="player.html?movie=https://s3ae.hlmarkscadei.sbs:443/v4/cn/tyv4i/index-f2-v1-a1.txt&title=Predator 2 (1990)">
-    <div class="movie-title">Predator 2 (1990)</div>
-  </a>
-  <a class="movie-card" href="player.html?movie=https://s3ae.hlmarkscadei.sbs:443/v4/t5/tyoyz/index-f2-v1-a1.txt&title=AVP: Alien vs Predator (2004)">
-    <div class="movie-title">AVP: Alien vs Predator (2004)</div>
-  </a>
-  <a class="movie-card" href="player.html?movie=https://s3ae.hlmarkscadei.sbs:443/v4/vu/tyqrl/index-f2-v1-a1.txt&title=Aliens vs Predator: Requiem (2007)">
-    <div class="movie-title">Aliens vs Predator: Requiem (2007)</div>
-  </a>
-  <a class="movie-card" href="player.html?movie=https://s3ae.hlmarkscadei.sbs:443/v4/ik/typ8v/index-f2-v1-a1.txt&title=Predators (2010)">
-    <div class="movie-title">Predators (2010)</div>
-  </a>
-  <a class="movie-card" href="player.html?movie=https://s3ae.hlmarkscadei.sbs:443/v4/6d/tyvdg/index-f2-v1-a1.txt&title=The Predator (2018)">
-    <div class="movie-title">The Predator (2018)</div>
-  </a>
+<div id="movie-list"></div>
+
+<div id="player-section">
+  <h1 id="movie-title">Loading...</h1>
+  <video id="video-player" controls autoplay></video>
+  <a class="back-button" href="#" onclick="goBack()">← Back to Movie Selection</a>
 </div>
+
+<div id="loading-spinner"></div>
+
+<script>
+const movies = [
+  {
+    title: "Prey (2022)",
+    poster: "https://upload.wikimedia.org/wikipedia/en/7/7f/Prey_2022_film_poster.png",
+    source: "https://s3ae.hlmarkscadei.sbs:443/v4/pq/tyxgh/index-f2-v1-a1.txt"
+  },
+  {
+    title: "Predator (1987)",
+    poster: "https://upload.wikimedia.org/wikipedia/en/9/95/Predator_Movie.jpg",
+    source: "https://s3ae.hlmarkscadei.sbs:443/v4/43/tywo3/index-f2-v1-a1.txt"
+  },
+  {
+    title: "Predator 2 (1990)",
+    poster: "https://upload.wikimedia.org/wikipedia/en/3/38/Predator_2_poster.png",
+    source: "https://s3ae.hlmarkscadei.sbs:443/v4/cn/tyv4i/index-f2-v1-a1.txt"
+  },
+  {
+    title: "AVP: Alien vs Predator (2004)",
+    poster: "https://upload.wikimedia.org/wikipedia/en/d/d2/AlienvsPredator2004.png",
+    source: "https://s3ae.hlmarkscadei.sbs:443/v4/t5/tyoyz/index-f2-v1-a1.txt"
+  },
+  {
+    title: "Aliens vs Predator: Requiem (2007)",
+    poster: "https://upload.wikimedia.org/wikipedia/en/c/c1/Aliens_vs_Predator_Requiem_poster.png",
+    source: "https://s3ae.hlmarkscadei.sbs:443/v4/vu/tyqrl/index-f2-v1-a1.txt"
+  },
+  {
+    title: "Predators (2010)",
+    poster: "https://upload.wikimedia.org/wikipedia/en/9/90/Predators_Film_Poster.jpg",
+    source: "https://s3ae.hlmarkscadei.sbs:443/v4/ik/typ8v/index-f2-v1-a1.txt"
+  },
+  {
+    title: "The Predator (2018)",
+    poster: "https://upload.wikimedia.org/wikipedia/en/3/36/The_Predator.jpg",
+    source: "https://s3ae.hlmarkscadei.sbs:443/v4/6d/tyvdg/index-f2-v1-a1.txt"
+  }
+];
+
+const movieList = document.getElementById('movie-list');
+const playerSection = document.getElementById('player-section');
+const pageTitle = document.getElementById('page-title');
+const movieTitle = document.getElementById('movie-title');
+const videoPlayer = document.getElementById('video-player');
+const loadingSpinner = document.getElementById('loading-spinner');
+
+function showSpinner() {
+  loadingSpinner.style.display = 'block';
+}
+function hideSpinner() {
+  loadingSpinner.style.display = 'none';
+}
+
+movies.forEach(movie => {
+  const card = document.createElement('div');
+  card.className = 'movie-card';
+  card.innerHTML = `
+    <img src="${movie.poster}" alt="${movie.title}" class="movie-poster">
+    <div class="movie-title">${movie.title}</div>
+  `;
+  card.onclick = () => loadMovie(movie.title, movie.source);
+  movieList.appendChild(card);
+});
+
+async function loadMovie(title, sourceUrl) {
+  showSpinner();
+  pageTitle.style.display = 'none';
+  movieList.style.display = 'none';
+  playerSection.style.display = 'flex';
+  movieTitle.textContent = title;
+
+  try {
+    const response = await fetch(sourceUrl);
+    const text = await response.text();
+    const m3u8Match = text.match(/https?:\/\/[^\s]+\.m3u8/);
+    const m3u8Url = m3u8Match ? m3u8Match[0] : null;
+
+    if (!m3u8Url) {
+      alert('No playable stream found!');
+      goBack();
+      return;
+    }
+
+    if (Hls.isSupported()) {
+      const hls = new Hls();
+      hls.loadSource(m3u8Url);
+      hls.attachMedia(videoPlayer);
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        videoPlayer.play();
+        hideSpinner();
+      });
+    } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
+      videoPlayer.src = m3u8Url;
+      videoPlayer.addEventListener('loadedmetadata', () => {
+        videoPlayer.play();
+        hideSpinner();
+      });
+    } else {
+      alert('Your browser does not support HLS!');
+      goBack();
+    }
+  } catch (error) {
+    console.error('Error loading movie:', error);
+    alert('Failed to load movie.');
+    goBack();
+  }
+}
+
+function goBack() {
+  playerSection.style.display = 'none';
+  movieList.style.display = 'flex';
+  pageTitle.style.display = 'block';
+  videoPlayer.pause();
+  videoPlayer.src = '';
+}
+
+</script>
 
 </body>
 </html>
