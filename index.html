@@ -6,51 +6,58 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body {
-      background: black;
-      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #000000 0%, #1c1c1c 100%);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       color: #ffcc00;
       text-align: center;
-      padding: 20px;
     }
     h1 {
-      margin-bottom: 30px;
+      margin: 20px;
+      font-size: 2em;
     }
     .movie-list {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 20px;
+      padding: 20px;
+      margin: auto;
+      max-width: 1200px;
     }
     .movie-card {
-      width: 200px;
-      background: #222;
+      background: rgba(255, 255, 255, 0.05);
       border: 2px solid #ffcc00;
-      border-radius: 10px;
+      border-radius: 15px;
       overflow: hidden;
+      backdrop-filter: blur(10px);
+      transition: transform 0.3s, background 0.3s;
       cursor: pointer;
-      transition: transform 0.3s;
     }
     .movie-card:hover {
-      transform: scale(1.05);
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-5px) scale(1.03);
     }
     .movie-card img {
       width: 100%;
       height: 300px;
       object-fit: cover;
+      border-bottom: 2px solid #ffcc00;
     }
     .movie-card p {
-      margin: 10px;
+      padding: 10px;
       font-weight: bold;
+      font-size: 1.1em;
     }
   </style>
 </head>
 <body>
 
-<h1>Predator Universe Collection</h1>
+<h1>🎬 Predator Universe Collection</h1>
 
-<div class="movie-list" id="movie-list">
-  <!-- Movies will be generated here -->
-</div>
+<div class="movie-list" id="movie-list"></div>
+
+<audio id="click-sound" src="https://www.myinstants.com/media/sounds/mouse-click.mp3" preload="auto"></audio>
 
 <script>
 const movies = [
@@ -92,8 +99,9 @@ const movies = [
 ];
 
 const movieList = document.getElementById('movie-list');
+const clickSound = document.getElementById('click-sound');
 
-movies.forEach((movie, index) => {
+movies.forEach((movie) => {
   const card = document.createElement('div');
   card.className = 'movie-card';
   card.innerHTML = `
@@ -101,10 +109,13 @@ movies.forEach((movie, index) => {
     <p>${movie.title}</p>
   `;
   card.onclick = () => {
+    clickSound.play();
     const params = new URLSearchParams();
     params.set('title', movie.title);
     params.set('video', movie.video);
-    window.location.href = `player.html?${params.toString()}`;
+    setTimeout(() => {
+      window.location.href = `player.html?${params.toString()}`;
+    }, 200); // tiny delay for click sound
   };
   movieList.appendChild(card);
 });
