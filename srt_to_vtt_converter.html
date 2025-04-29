@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SRT to VTT Subtitle Converter</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: black;
+      color: #ffcc00;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 40px;
+    }
+    input[type="file"], button {
+      margin: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+    }
+    input[type="file"] {
+      background: #333;
+      color: #ffcc00;
+    }
+    button {
+      background: #ffcc00;
+      color: black;
+    }
+    button:hover {
+      background: #e6b800;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Subtitle Converter (SRT ➔ VTT)</h1>
+
+<input type="file" id="srtFile" accept=".srt"><br>
+<button onclick="convert()">Convert and Download</button>
+
+<script>
+function convert() {
+  const fileInput = document.getElementById('srtFile');
+  const file = fileInput.files[0];
+  if (!file) {
+    alert("Please select a .srt file!");
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    let srt = e.target.result;
+
+    // Add WebVTT header
+    let vtt = "WEBVTT\n\n" + srt
+      .replace(/\r+/g, '') // Remove all \r
+      .replace(/(\d\d:\d\d:\d\d),(\d\d\d)/g, '$1.$2'); // Replace comma with dot in timecodes
+
+    const blob = new Blob([vtt], { type: 'text/vtt' });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = file.name.replace('.srt', '.vtt');
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+  reader.readAsText(file);
+}
+</script>
+
+</body>
+</html>
