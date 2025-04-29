@@ -2,205 +2,89 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Predator Movies</title>
+  <title>Predator Movie Collection</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    /* Base Styling */
-    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: Arial, sans-serif;
       background: black;
-      color: #fff;
-      padding: 20px;
-      min-height: 100vh;
-      background-image: url('https://images.unsplash.com/photo-1524055988636-860fdd57a6df?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80');
-      background-size: cover;
-      background-position: center;
-    }
-    h1 {
+      font-family: Arial, sans-serif;
       color: #ffcc00;
       text-align: center;
+      padding: 20px;
+    }
+    h1 {
       margin-bottom: 30px;
     }
-    #movie-list {
+    .movie-list {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
       gap: 20px;
     }
     .movie-card {
-      background: rgba(0,0,0,0.7);
+      width: 200px;
+      background: #222;
       border: 2px solid #ffcc00;
       border-radius: 10px;
-      padding: 10px;
-      width: 200px;
+      overflow: hidden;
       cursor: pointer;
-      text-align: center;
-      transition: all 0.3s;
+      transition: transform 0.3s;
     }
     .movie-card:hover {
-      background: rgba(255,255,255,0.2);
       transform: scale(1.05);
     }
-    .movie-poster {
+    .movie-card img {
       width: 100%;
       height: 300px;
       object-fit: cover;
-      border-radius: 8px;
     }
-    .movie-title {
-      margin-top: 10px;
+    .movie-card p {
+      margin: 10px;
       font-weight: bold;
-      font-size: 1.1rem;
-    }
-    #player-section {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      gap: 20px;
-      margin-top: 20px;
-    }
-    video {
-      width: 90%;
-      max-width: 1000px;
-      border: 3px solid #ffcc00;
-      border-radius: 12px;
-      background: black;
-    }
-    .back-button {
-      margin-top: 20px;
-      text-decoration: none;
-      color: #ffcc00;
-      font-weight: bold;
-      font-size: 1.2rem;
-    }
-    .back-button:hover {
-      text-decoration: underline;
-    }
-    /* Spinner */
-    #loading-spinner {
-      display: none;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      border: 8px solid #f3f3f3;
-      border-top: 8px solid #ffcc00;
-      border-radius: 50%;
-      width: 60px;
-      height: 60px;
-      animation: spin 1s linear infinite;
-      z-index: 1000;
-    }
-    #loading-text {
-      display: none;
-      position: fixed;
-      top: 60%;
-      left: 50%;
-      transform: translateX(-50%);
-      color: #ffcc00;
-      font-size: 1.2em;
-      font-weight: bold;
-    }
-    @keyframes spin {
-      0% { transform: translate(-50%, -50%) rotate(0deg); }
-      100% { transform: translate(-50%, -50%) rotate(360deg); }
     }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 </head>
 <body>
 
-<h1 id="page-title">Predator Movie Collection</h1>
+<h1>Predator Movie Collection</h1>
 
-<div id="movie-list"></div>
-
-<div id="player-section">
-  <h1 id="movie-title">Loading...</h1>
-  <video id="video-player" controls autoplay></video>
-  <a class="back-button" href="#" onclick="goBack()">← Back to Movie Selection</a>
+<div class="movie-list" id="movie-list">
+  <!-- Movies will be loaded here -->
 </div>
-
-<div id="loading-spinner"></div>
-<div id="loading-text">Loading movie...</div>
 
 <script>
 const movies = [
   {
     title: "Prey (2022)",
     poster: "https://upload.wikimedia.org/wikipedia/en/7/7f/Prey_2022_film_poster.png",
-    videoUrl: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8"
+    video: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8"
   },
   {
     title: "Predator (1987)",
     poster: "https://upload.wikimedia.org/wikipedia/en/9/95/Predator_Movie.jpg",
-    videoUrl: "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8"
+    video: "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8"
   }
-  // Add more properly working entries later
+  // Add more movies easily
 ];
 
 const movieList = document.getElementById('movie-list');
-const playerSection = document.getElementById('player-section');
-const pageTitle = document.getElementById('page-title');
-const movieTitle = document.getElementById('movie-title');
-const videoPlayer = document.getElementById('video-player');
-const loadingSpinner = document.getElementById('loading-spinner');
-const loadingText = document.getElementById('loading-text');
 
-function showSpinner() {
-  loadingSpinner.style.display = 'block';
-  loadingText.style.display = 'block';
-}
-function hideSpinner() {
-  loadingSpinner.style.display = 'none';
-  loadingText.style.display = 'none';
-}
-
-movies.forEach(movie => {
+movies.forEach((movie, index) => {
   const card = document.createElement('div');
   card.className = 'movie-card';
   card.innerHTML = `
-    <img src="${movie.poster}" alt="${movie.title}" class="movie-poster">
-    <div class="movie-title">${movie.title}</div>
+    <img src="${movie.poster}" alt="${movie.title}">
+    <p>${movie.title}</p>
   `;
-  card.onclick = () => loadMovie(movie.title, movie.videoUrl);
+  card.onclick = () => {
+    // Save movie info into URL params
+    const params = new URLSearchParams();
+    params.set('title', movie.title);
+    params.set('video', movie.video);
+    window.location.href = `player.html?${params.toString()}`;
+  };
   movieList.appendChild(card);
 });
-
-async function loadMovie(title, videoUrl) {
-  showSpinner();
-  pageTitle.style.display = 'none';
-  movieList.style.display = 'none';
-  playerSection.style.display = 'flex';
-  movieTitle.textContent = title;
-
-  if (Hls.isSupported()) {
-    const hls = new Hls();
-    hls.loadSource(videoUrl);
-    hls.attachMedia(videoPlayer);
-    hls.on(Hls.Events.MANIFEST_PARSED, () => {
-      videoPlayer.play();
-      hideSpinner();
-    });
-  } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
-    videoPlayer.src = videoUrl;
-    videoPlayer.addEventListener('loadedmetadata', () => {
-      videoPlayer.play();
-      hideSpinner();
-    });
-  } else {
-    alert('Your browser does not support HLS.');
-    goBack();
-  }
-}
-
-function goBack() {
-  playerSection.style.display = 'none';
-  movieList.style.display = 'flex';
-  pageTitle.style.display = 'block';
-  videoPlayer.pause();
-  videoPlayer.src = '';
-}
 </script>
 
 </body>
