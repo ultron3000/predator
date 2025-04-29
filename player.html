@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Movie Player</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: black;
+      color: #fff;
+      text-align: center;
+      padding: 20px;
+    }
+    h1 {
+      margin-bottom: 20px;
+      color: #ffcc00;
+    }
+    #video-player {
+      width: 90%;
+      max-width: 1000px;
+      height: auto;
+      border: 3px solid #ffcc00;
+      border-radius: 12px;
+      background: black;
+    }
+    a {
+      display: inline-block;
+      margin-top: 20px;
+      text-decoration: none;
+      color: #ffcc00;
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+</head>
+<body>
+
+<h1 id="movie-title">Loading...</h1>
+
+<video id="video-player" controls autoplay></video>
+
+<br>
+<a href="index.html">← Back to Movie Selection</a>
+
+<script>
+  const urlParams = new URLSearchParams(window.location.search);
+  const movieUrl = urlParams.get('movie');
+  const movieTitle = urlParams.get('title');
+
+  document.getElementById('movie-title').textContent = movieTitle || "Predator Movie";
+
+  const video = document.getElementById('video-player');
+  let hls;
+
+  function playMovie(url) {
+    if (Hls.isSupported()) {
+      hls = new Hls();
+      hls.loadSource(url);
+      hls.attachMedia(video);
+    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      video.src = url;
+    } else {
+      alert('Your browser does not support HLS streaming.');
+    }
+    video.play();
+  }
+
+  if (movieUrl) {
+    playMovie(movieUrl);
+  } else {
+    alert('No movie URL provided!');
+  }
+</script>
+
+</body>
+</html>
