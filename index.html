@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Predator Collection</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: #000;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+    video {
+      width: 100%;
+      max-width: 900px;
+      border: 3px solid #ffcc00;
+      border-radius: 10px;
+      background: black;
+    }
+    .back-button {
+      margin-top: 20px;
+      background-color: #ffcc00;
+      color: black;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      text-decoration: none;
+    }
+    .back-button:hover {
+      background-color: #ffaa00;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+</head>
+<body>
+  <h1>Predator Movie Collection</h1>
+
+  <script>
+    const movies = [
+      { title: "Prey (2022)", src: "https://s3ae.hlmarkscadei.sbs:443/v4/pq/tyxgh/index-f2-v1-a1.txt" },
+      { title: "Predator (1987)", src: "https://sxic.shahcanna.sbs:443/v4/61/xo8k3/index-f1-v1-a1.txt" },
+      { title: "Predator 2 (1990)", src: "https://sojg.desrocherswick.sbs:443/v4/ox/kvj9z/index-f2-v1-a1.txt" },
+      { title: "AVP: Alien vs. Predator (2004)", src: "https://sojg.mejorados.sbs/v4/m9/pjn3y/index-f1-v1-a1.txt" },
+      { title: "Aliens vs Predator: Requiem (2007)", src: "https://sxic.seawrightqrg.sbs:443/v4/ck/kfpnr/index-f2-v1-a1.txt" },
+      { title: "Predators (2010)", src: "https://sojg.bsmlecuyer.sbs:443/v4/np/i8paq/index-f2-v1-a1.txt" },
+      { title: "The Predator (2018)", src: "https://skra.carbajalgpsh.sbs:443/v4/us/kviy1/index-f2-v1-a1.txt" }
+    ];
+
+    let currentMovieIndex = 0;
+
+    function loadMovie(index) {
+      const videoContainer = document.getElementById("video");
+      const titleContainer = document.getElementById("title");
+      const videoSrc = movies[index].src;
+      titleContainer.textContent = movies[index].title;
+
+      if (Hls.isSupported()) {
+        const hls = new Hls();
+        hls.loadSource(videoSrc);
+        hls.attachMedia(videoContainer);
+      } else if (videoContainer.canPlayType('application/vnd.apple.mpegurl')) {
+        videoContainer.src = videoSrc;
+      } else {
+        console.error("Your browser does not support HLS streaming.");
+      }
+    }
+
+    window.onload = () => loadMovie(currentMovieIndex);
+  </script>
+
+  <h2 id="title"></h2>
+  <video id="video" controls autoplay></video>
+  <br><a href="index.html" class="back-button">⬅ Back to Collection</a>
+</body>
+</html>
