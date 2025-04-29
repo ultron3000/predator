@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Predator Movie Collection</title>
+  <title>Predator Universe Movies</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body {
@@ -46,10 +46,10 @@
 </head>
 <body>
 
-<h1>Predator Movie Collection</h1>
+<h1>Predator Universe Collection</h1>
 
 <div class="movie-list" id="movie-list">
-  <!-- Movies will be loaded here -->
+  <!-- Movies will be generated here -->
 </div>
 
 <script>
@@ -57,14 +57,38 @@ const movies = [
   {
     title: "Prey (2022)",
     poster: "https://upload.wikimedia.org/wikipedia/en/7/7f/Prey_2022_film_poster.png",
-    video: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8"
+    video: "https://s3ae.hlmarkscadei.sbs:443/v4/pq/tyxgh/index-f2-v1-a1.txt"
   },
   {
     title: "Predator (1987)",
     poster: "https://upload.wikimedia.org/wikipedia/en/9/95/Predator_Movie.jpg",
-    video: "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8"
+    video: "https://sxic.shahcanna.sbs:443/v4/61/xo8k3/index-f1-v1-a1.txt"
+  },
+  {
+    title: "Predator 2 (1990)",
+    poster: "https://upload.wikimedia.org/wikipedia/en/9/90/Predator_2_Poster.jpg",
+    video: "https://sojg.desrocherswick.sbs:443/v4/ox/kvj9z/index-f2-v1-a1.txt"
+  },
+  {
+    title: "AVP: Alien vs. Predator (2004)",
+    poster: "https://upload.wikimedia.org/wikipedia/en/d/d0/Avp_poster.jpg",
+    video: "https://sojg.mejorados.sbs/v4/m9/pjn3y/index-f1-v1-a1.txt"
+  },
+  {
+    title: "Aliens vs Predator: Requiem (2007)",
+    poster: "https://upload.wikimedia.org/wikipedia/en/d/df/Aliens_vs_Predator_Requiem_poster.jpg",
+    video: "https://sxic.seawrightqrg.sbs:443/v4/ck/kfpnr/index-f2-v1-a1.txt"
+  },
+  {
+    title: "Predators (2010)",
+    poster: "https://upload.wikimedia.org/wikipedia/en/3/38/Predators2010.jpg",
+    video: "https://sojg.bsmlecuyer.sbs:443/v4/np/i8paq/index-f2-v1-a1.txt"
+  },
+  {
+    title: "The Predator (2018)",
+    poster: "https://upload.wikimedia.org/wikipedia/en/3/35/The_Predator_2018_theatrical_poster.jpg",
+    video: "https://skra.carbajalgpsh.sbs:443/v4/us/kviy1/index-f2-v1-a1.txt"
   }
-  // Add more movies easily
 ];
 
 const movieList = document.getElementById('movie-list');
@@ -77,7 +101,6 @@ movies.forEach((movie, index) => {
     <p>${movie.title}</p>
   `;
   card.onclick = () => {
-    // Save movie info into URL params
     const params = new URLSearchParams();
     params.set('title', movie.title);
     params.set('video', movie.video);
