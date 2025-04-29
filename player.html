@@ -2,25 +2,22 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <title>Player</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Movie Player</title>
   <style>
     body {
-      margin: 0;
-      font-family: Arial, sans-serif;
       background: black;
-      color: #fff;
+      font-family: Arial, sans-serif;
+      color: #ffcc00;
       text-align: center;
       padding: 20px;
     }
     h1 {
       margin-bottom: 20px;
-      color: #ffcc00;
     }
-    #video-player {
+    video {
       width: 90%;
       max-width: 1000px;
-      height: auto;
       border: 3px solid #ffcc00;
       border-radius: 12px;
       background: black;
@@ -28,73 +25,103 @@
     a {
       display: inline-block;
       margin-top: 20px;
-      text-decoration: none;
       color: #ffcc00;
       font-weight: bold;
-      font-size: 1.2rem;
+      text-decoration: none;
+      font-size: 1.2em;
     }
     a:hover {
       text-decoration: underline;
+    }
+    /* Spinner */
+    #loading-spinner {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      width: 60px;
+      height: 60px;
+      margin: -30px 0 0 -30px;
+      border: 8px solid #f3f3f3;
+      border-top: 8px solid #ffcc00;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      z-index: 999;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    #loading-text {
+      display: none;
+      position: fixed;
+      top: 60%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 1.2em;
+      font-weight: bold;
     }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 </head>
 <body>
 
+<div id="loading-spinner"></div>
+<div id="loading-text">Loading movie...</div>
+
 <h1 id="movie-title">Loading...</h1>
 
-<video id="video-player" controls autoplay></video>
+<video id="video" controls autoplay></video>
 
 <br>
-<a href="index.html">← Back to Movie Selection</a>
+<a href="index.html">← Back to Movies</a>
 
 <script>
-async function loadVideo() {
-  const params = new URLSearchParams(window.location.search);
-  const sourceUrl = params.get('source');
-  const title = params.get('title');
+const urlParams = new URLSearchParams(window.location.search);
+const title = urlParams.get('title');
+const videoUrl = urlParams.get('video');
 
-  document.getElementById('movie-title').textContent = title || "Predator Movie";
+const movieTitle = document.getElementById('movie-title');
+const videoPlayer = document.getElementById('video');
+const loadingSpinner = document.getElementById('loading-spinner');
+const loadingText = document.getElementById('loading-text');
 
-  if (!sourceUrl) {
-    alert('No source provided!');
-    return;
-  }
-
-  try {
-    const response = await fetch(sourceUrl);
-    const text = await response.text();
-
-    // Find first .m3u8 link
-    const m3u8Match = text.match(/https?:\/\/[^\s]+\.m3u8/);
-    const m3u8Url = m3u8Match ? m3u8Match[0] : null;
-
-    if (!m3u8Url) {
-      alert('No playable stream found!');
-      return;
-    }
-
-    const video = document.getElementById('video-player');
-
-    if (Hls.isSupported()) {
-      const hls = new Hls();
-      hls.loadSource(m3u8Url);
-      hls.attachMedia(video);
-    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-      video.src = m3u8Url;
-    } else {
-      alert('Your browser does not support HLS.');
-    }
-
-    video.play();
-
-  } catch (error) {
-    console.error('Error loading movie:', error);
-    alert('Failed to load the movie.');
-  }
+if (!title || !videoUrl) {
+  alert("Invalid movie selection!");
+  window.location.href = "index.html";
 }
 
-loadVideo();
+movieTitle.textContent = title;
+
+function showSpinner() {
+  loadingSpinner.style.display = 'block';
+  loadingText.style.display = 'block';
+}
+function hideSpinner() {
+  loadingSpinner.style.display = 'none';
+  loadingText.style.display = 'none';
+}
+
+showSpinner();
+
+if (Hls.isSupported()) {
+  const hls = new Hls();
+  hls.loadSource(videoUrl);
+  hls.attachMedia(videoPlayer);
+  hls.on(Hls.Events.MANIFEST_PARSED, function() {
+    videoPlayer.play();
+    hideSpinner();
+  });
+} else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
+  videoPlayer.src = videoUrl;
+  videoPlayer.addEventListener('loadedmetadata', () => {
+    videoPlayer.play();
+    hideSpinner();
+  });
+} else {
+  alert("Your browser does not support HLS playback.");
+  window.location.href = "index.html";
+}
 </script>
 
 </body>
