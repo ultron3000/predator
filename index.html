@@ -2,122 +2,118 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Predator Universe Movies</title>
+  <title>Movie Library</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body {
-      margin: 0;
-      padding: 0;
-      background: linear-gradient(135deg, #000000 0%, #1c1c1c 100%);
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: black;
       color: #ffcc00;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
       text-align: center;
     }
     h1 {
-      margin: 20px;
+      margin-bottom: 20px;
       font-size: 2em;
     }
-    .movie-list {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    .movies {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
       gap: 20px;
-      padding: 20px;
-      margin: auto;
-      max-width: 1200px;
     }
-    .movie-card {
-      background: rgba(255, 255, 255, 0.05);
+    .movie {
+      background: #222;
       border: 2px solid #ffcc00;
-      border-radius: 15px;
-      overflow: hidden;
-      backdrop-filter: blur(10px);
-      transition: transform 0.3s, background 0.3s;
-      cursor: pointer;
-    }
-    .movie-card:hover {
-      background: rgba(255, 255, 255, 0.1);
-      transform: translateY(-5px) scale(1.03);
-    }
-    .movie-card img {
-      width: 100%;
-      height: 300px;
-      object-fit: cover;
-      border-bottom: 2px solid #ffcc00;
-    }
-    .movie-card p {
+      border-radius: 12px;
+      width: 200px;
       padding: 10px;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+    .movie:hover {
+      transform: scale(1.05);
+      background: #333;
+    }
+    .movie img {
+      width: 100%;
+      height: 280px;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+    .movie-title {
+      margin-top: 10px;
+      font-size: 1em;
       font-weight: bold;
-      font-size: 1.1em;
     }
   </style>
 </head>
 <body>
 
-<h1>🎬 Predator Universe Collection</h1>
+<h1>🎥 Predator Movie Series</h1>
 
-<div class="movie-list" id="movie-list"></div>
-
-<audio id="click-sound" src="https://www.myinstants.com/media/sounds/mouse-click.mp3" preload="auto"></audio>
+<div class="movies" id="movies"></div>
 
 <script>
 const movies = [
   {
     title: "Prey (2022)",
-    poster: "https://upload.wikimedia.org/wikipedia/en/7/7f/Prey_2022_film_poster.png",
-    video: "https://s3ae.hlmarkscadei.sbs:443/v4/pq/tyxgh/index-f2-v1-a1.txt"
+    video: "https://s3ae.hlmarkscadei.sbs:443/v4/pq/tyxgh/index-f2-v1-a1.txt",
+    subtitle: "",
+    image: "https://upload.wikimedia.org/wikipedia/en/b/b5/Prey_2022_poster.png"
   },
   {
     title: "Predator (1987)",
-    poster: "https://upload.wikimedia.org/wikipedia/en/9/95/Predator_Movie.jpg",
-    video: "https://sxic.shahcanna.sbs:443/v4/61/xo8k3/index-f1-v1-a1.txt"
+    video: "https://sxic.shahcanna.sbs:443/v4/61/xo8k3/index-f1-v1-a1.txt",
+    subtitle: "",
+    image: "https://upload.wikimedia.org/wikipedia/en/9/95/Predator_Movie.jpg"
   },
   {
     title: "Predator 2 (1990)",
-    poster: "https://upload.wikimedia.org/wikipedia/en/9/90/Predator_2_Poster.jpg",
-    video: "https://sojg.desrocherswick.sbs:443/v4/ox/kvj9z/index-f2-v1-a1.txt"
+    video: "https://sojg.desrocherswick.sbs:443/v4/ox/kvj9z/index-f2-v1-a1.txt",
+    subtitle: "",
+    image: "https://upload.wikimedia.org/wikipedia/en/d/dc/Predator_2_poster.png"
   },
   {
     title: "AVP: Alien vs. Predator (2004)",
-    poster: "https://upload.wikimedia.org/wikipedia/en/d/d0/Avp_poster.jpg",
-    video: "https://sojg.mejorados.sbs/v4/m9/pjn3y/index-f1-v1-a1.txt"
+    video: "https://sojg.mejorados.sbs/v4/m9/pjn3y/index-f1-v1-a1.txt",
+    subtitle: "",
+    image: "https://upload.wikimedia.org/wikipedia/en/1/1c/Alien_vs_Predator_movie.jpg"
   },
   {
     title: "Aliens vs Predator: Requiem (2007)",
-    poster: "https://upload.wikimedia.org/wikipedia/en/d/df/Aliens_vs_Predator_Requiem_poster.jpg",
-    video: "https://sxic.seawrightqrg.sbs:443/v4/ck/kfpnr/index-f2-v1-a1.txt"
+    video: "https://sxic.seawrightqrg.sbs:443/v4/ck/kfpnr/index-f2-v1-a1.txt",
+    subtitle: "",
+    image: "https://upload.wikimedia.org/wikipedia/en/2/20/Aliens_vs_Predator_Requiem_poster.png"
   },
   {
     title: "Predators (2010)",
-    poster: "https://upload.wikimedia.org/wikipedia/en/3/38/Predators2010.jpg",
-    video: "https://sojg.bsmlecuyer.sbs:443/v4/np/i8paq/index-f2-v1-a1.txt"
+    video: "https://sojg.bsmlecuyer.sbs:443/v4/np/i8paq/index-f2-v1-a1.txt",
+    subtitle: "",
+    image: "https://upload.wikimedia.org/wikipedia/en/a/a7/Predators2010Poster.jpg"
   },
   {
     title: "The Predator (2018)",
-    poster: "https://upload.wikimedia.org/wikipedia/en/3/35/The_Predator_2018_theatrical_poster.jpg",
-    video: "https://skra.carbajalgpsh.sbs:443/v4/us/kviy1/index-f2-v1-a1.txt"
+    video: "https://skra.carbajalgpsh.sbs:443/v4/us/kviy1/index-f2-v1-a1.txt",
+    subtitle: "",
+    image: "https://upload.wikimedia.org/wikipedia/en/2/2c/The_Predator_%282018%29.png"
   }
 ];
 
-const movieList = document.getElementById('movie-list');
-const clickSound = document.getElementById('click-sound');
-
-movies.forEach((movie) => {
-  const card = document.createElement('div');
-  card.className = 'movie-card';
-  card.innerHTML = `
-    <img src="${movie.poster}" alt="${movie.title}">
-    <p>${movie.title}</p>
+const container = document.getElementById('movies');
+movies.forEach((movie, index) => {
+  const div = document.createElement('div');
+  div.className = 'movie';
+  div.innerHTML = `
+    <img src="${movie.image}" alt="${movie.title}">
+    <div class="movie-title">${movie.title}</div>
   `;
-  card.onclick = () => {
-    clickSound.play();
-    const params = new URLSearchParams();
-    params.set('title', movie.title);
-    params.set('video', movie.video);
-    setTimeout(() => {
-      window.location.href = `player.html?${params.toString()}`;
-    }, 200); // tiny delay for click sound
+  div.onclick = () => {
+    const url = `player.html?title=${encodeURIComponent(movie.title)}&video=${encodeURIComponent(movie.video)}&subtitle=${encodeURIComponent(movie.subtitle)}&index=${index}`;
+    window.location.href = url;
   };
-  movieList.appendChild(card);
+  container.appendChild(div);
 });
 </script>
 
