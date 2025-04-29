@@ -49,33 +49,52 @@
 <a href="index.html">← Back to Movie Selection</a>
 
 <script>
-  const urlParams = new URLSearchParams(window.location.search);
-  const movieUrl = urlParams.get('movie');
-  const movieTitle = urlParams.get('title');
+async function loadVideo() {
+  const params = new URLSearchParams(window.location.search);
+  const sourceUrl = params.get('source');
+  const title = params.get('title');
 
-  document.getElementById('movie-title').textContent = movieTitle || "Predator Movie";
+  document.getElementById('movie-title').textContent = title || "Predator Movie";
 
-  const video = document.getElementById('video-player');
-  let hls;
+  if (!sourceUrl) {
+    alert('No source provided!');
+    return;
+  }
 
-  function playMovie(url) {
+  try {
+    const response = await fetch(sourceUrl);
+    const text = await response.text();
+
+    // Find first .m3u8 link
+    const m3u8Match = text.match(/https?:\/\/[^\s]+\.m3u8/);
+    const m3u8Url = m3u8Match ? m3u8Match[0] : null;
+
+    if (!m3u8Url) {
+      alert('No playable stream found!');
+      return;
+    }
+
+    const video = document.getElementById('video-player');
+
     if (Hls.isSupported()) {
-      hls = new Hls();
-      hls.loadSource(url);
+      const hls = new Hls();
+      hls.loadSource(m3u8Url);
       hls.attachMedia(video);
     } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-      video.src = url;
+      video.src = m3u8Url;
     } else {
-      alert('Your browser does not support HLS streaming.');
+      alert('Your browser does not support HLS.');
     }
-    video.play();
-  }
 
-  if (movieUrl) {
-    playMovie(movieUrl);
-  } else {
-    alert('No movie URL provided!');
+    video.play();
+
+  } catch (error) {
+    console.error('Error loading movie:', error);
+    alert('Failed to load the movie.');
   }
+}
+
+loadVideo();
 </script>
 
 </body>
