@@ -2,82 +2,120 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Predator Franchise Movies</title>
+  <title>Movie Library</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body {
+      background: black;
+      color: #ffcc00;
       font-family: Arial, sans-serif;
-      background: #111;
-      color: #fff;
+      margin: 0;
+      padding: 20px;
       text-align: center;
     }
-    .movie-grid {
+    h1 {
+      margin-bottom: 20px;
+      font-size: 2em;
+    }
+    .movies {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
       gap: 20px;
-      margin-top: 30px;
     }
-    .movie-card {
+    .movie {
       background: #222;
-      border-radius: 10px;
-      padding: 10px;
+      border: 2px solid #ffcc00;
+      border-radius: 12px;
       width: 200px;
-      box-shadow: 0 0 10px #333;
-      text-decoration: none;
-      color: inherit;
+      padding: 10px;
+      cursor: pointer;
       transition: transform 0.3s;
     }
-    .movie-card:hover {
+    .movie:hover {
       transform: scale(1.05);
+      background: #333;
     }
-    .movie-card img {
+    .movie img {
       width: 100%;
+      height: 280px;
+      object-fit: cover;
       border-radius: 10px;
+    }
+    .movie-title {
+      margin-top: 10px;
+      font-size: 1em;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
 
-<h1>Predator Franchise Movies</h1>
+<h1>🎥 Predator Movie Series</h1>
 
-<div class="movie-grid">
+<div class="movies" id="movies"></div>
 
-  <a class="movie-card" href="player.html?title=Prey&year=2022&video=https://s3ae.hlmarkscadei.sbs:443/v4/pq/tyxgh/index-f2-v1-a1.txt">
-    <img src="https://upload.wikimedia.org/wikipedia/en/3/32/Prey_2022_poster.png" alt="Prey">
-    <h2>Prey (2022)</h2>
-  </a>
+<script>
+const movies = [
+  {
+    title: "Prey (2022)",
+    video: "https://s3ae.hlmarkscadei.sbs:443/v4/pq/tyxgh/index-f2-v1-a1.txt",
+    subtitle: "",
+    image: "https://upload.wikimedia.org/wikipedia/en/b/b5/Prey_2022_poster.png"
+  },
+  {
+    title: "Predator (1987)",
+    video: "https://sxic.shahcanna.sbs:443/v4/61/xo8k3/index-f1-v1-a1.txt",
+    subtitle: "",
+    image: "https://upload.wikimedia.org/wikipedia/en/9/95/Predator_Movie.jpg"
+  },
+  {
+    title: "Predator 2 (1990)",
+    video: "https://sojg.desrocherswick.sbs:443/v4/ox/kvj9z/index-f2-v1-a1.txt",
+    subtitle: "",
+    image: "https://upload.wikimedia.org/wikipedia/en/d/dc/Predator_2_poster.png"
+  },
+  {
+    title: "AVP: Alien vs. Predator (2004)",
+    video: "https://sojg.mejorados.sbs/v4/m9/pjn3y/index-f1-v1-a1.txt",
+    subtitle: "",
+    image: "https://upload.wikimedia.org/wikipedia/en/1/1c/Alien_vs_Predator_movie.jpg"
+  },
+  {
+    title: "Aliens vs Predator: Requiem (2007)",
+    video: "https://sxic.seawrightqrg.sbs:443/v4/ck/kfpnr/index-f2-v1-a1.txt",
+    subtitle: "",
+    image: "https://upload.wikimedia.org/wikipedia/en/2/20/Aliens_vs_Predator_Requiem_poster.png"
+  },
+  {
+    title: "Predators (2010)",
+    video: "https://sojg.bsmlecuyer.sbs:443/v4/np/i8paq/index-f2-v1-a1.txt",
+    subtitle: "",
+    image: "https://upload.wikimedia.org/wikipedia/en/a/a7/Predators2010Poster.jpg"
+  },
+  {
+    title: "The Predator (2018)",
+    video: "https://skra.carbajalgpsh.sbs:443/v4/us/kviy1/index-f2-v1-a1.txt",
+    subtitle: "",
+    image: "https://upload.wikimedia.org/wikipedia/en/2/2c/The_Predator_%282018%29.png"
+  }
+];
 
-  <a class="movie-card" href="player.html?title=Predator&year=1987&video=https://sxic.shahcanna.sbs:443/v4/61/xo8k3/index-f1-v1-a1.txt">
-    <img src="https://upload.wikimedia.org/wikipedia/en/9/95/Predator_Movie.jpg" alt="Predator">
-    <h2>Predator (1987)</h2>
-  </a>
-
-  <a class="movie-card" href="player.html?title=Predator%202&year=1990&video=https://sojg.desrocherswick.sbs:443/v4/ox/kvj9z/index-f2-v1-a1.txt">
-    <img src="https://upload.wikimedia.org/wikipedia/en/0/00/Predator_2_poster.jpg" alt="Predator 2">
-    <h2>Predator 2 (1990)</h2>
-  </a>
-
-  <a class="movie-card" href="player.html?title=AVP&year=2004&video=https://sojg.mejorados.sbs/v4/m9/pjn3y/index-f1-v1-a1.txt">
-    <img src="https://upload.wikimedia.org/wikipedia/en/d/d8/Avp_poster.jpg" alt="AVP: Alien vs Predator">
-    <h2>AVP: Alien vs Predator (2004)</h2>
-  </a>
-
-  <a class="movie-card" href="player.html?title=Aliens%20vs%20Predator%20Requiem&year=2007&video=https://sxic.seawrightqrg.sbs:443/v4/ck/kfpnr/index-f2-v1-a1.txt">
-    <img src="https://upload.wikimedia.org/wikipedia/en/7/7a/AliensvsPredatorRequiem.jpg" alt="Aliens vs Predator: Requiem">
-    <h2>Aliens vs Predator: Requiem (2007)</h2>
-  </a>
-
-  <a class="movie-card" href="player.html?title=Predators&year=2010&video=https://sojg.bsmlecuyer.sbs:443/v4/np/i8paq/index-f2-v1-a1.txt">
-    <img src="https://upload.wikimedia.org/wikipedia/en/9/98/Predators2010.jpg" alt="Predators">
-    <h2>Predators (2010)</h2>
-  </a>
-
-  <a class="movie-card" href="player.html?title=The%20Predator&year=2018&video=https://skra.carbajalgpsh.sbs:443/v4/us/kviy1/index-f2-v1-a1.txt">
-    <img src="https://upload.wikimedia.org/wikipedia/en/f/f8/The_Predator_Teaser_Poster.jpg" alt="The Predator">
-    <h2>The Predator (2018)</h2>
-  </a>
-
-</div>
+const container = document.getElementById('movies');
+movies.forEach((movie, index) => {
+  const div = document.createElement('div');
+  div.className = 'movie';
+  div.innerHTML = `
+    <img src="${movie.image}" alt="${movie.title}">
+    <div class="movie-title">${movie.title}</div>
+  `;
+  div.onclick = () => {
+    const url = `player.html?title=${encodeURIComponent(movie.title)}&video=${encodeURIComponent(movie.video)}&subtitle=${encodeURIComponent(movie.subtitle)}&index=${index}`;
+    window.location.href = url;
+  };
+  container.appendChild(div);
+});
+</script>
 
 </body>
 </html>
