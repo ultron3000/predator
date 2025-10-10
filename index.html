@@ -161,14 +161,33 @@
   </header>
 
   <!-- Hero Section -->
-  <section class="relative h-80 md:h-screen max-h-[800px] overflow-hidden hero-bg">
+<section class="relative h-80 md:h-screen max-h-[800px] overflow-hidden">
+  <!-- 🔥 Background Video -->
+  <video autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover z-0">
+    <source src="https://imdb-video.media-imdb.com/vi1860878873/1434659607842-pgv4ql-1654611126478.mp4?Expires=1760151641&Signature=t1gMw-ZzU5hZOOxwmL-wdbAwyjwbX8DN76a1r2fJr~aYNjvA-8htZeBLG2pHx7LztBklvsCAf-7s4nZStO-5yojWM-ioN2FK2SFhixk46qNEeAOEa9WR6i518rfHiay3eRva-3MQkiwVF5sojJlP5F9db-JkVTOx56LnT8qyPDfaifwfz~mCl9cEn6z4gxxP65pHOdwKxYKY1xfwzDGgzjlRaaq4HOLF4TUR~wNH3FMw86Ej~B5LHmfFVpCbpnDzNz3MwNa86qYlEOlLIqjGmD5E4B67mpzWsGJSQr~3CXiJfbUpz4V9EH872N1lH5ezHeUTDpljzw1dHWQFLcZpWg__&Key-Pair-Id=APKAIFLZBVQZ24NQH3KA" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+
+  <!-- Overlay -->
+  <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/70 to-transparent z-10"></div>
+
+  <!-- Content -->
+  <div class="absolute inset-0 flex items-center justify-center z-20 px-4">
+    <div class="text-center max-w-4xl">
+      <h2 class="text-5xl md:text-7xl font-bold text-yellow-500 mb-6 glow tracking-wider">EXPLORE THE HUNT</h2>
+      <p class="text-xl md:text-2xl text-gray-300 mb-8 max-w-2xl mx-auto">The ultimate collection of Predator films from across the galaxy</p>
+      <button class="btn bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-3 px-8 rounded-full text-lg transition-all duration-300 transform hover:scale-105">
+        Start Watching
+      </button>
+    </div>
+  </div>
+
+  <!-- Bottom Fade -->
+  <div class="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-gray-900 to-transparent z-20"></div>
+</section>
     <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/70 to-transparent z-10"></div>
     <div class="absolute inset-0 flex items-center justify-center z-20 px-4">
       <div class="text-center max-w-4xl">
-        <h2 class="text-5xl md:text-7xl font-bold text-yellow-500 mb-6 glow tracking-wider">EXPLORE THE HUNT</h2>
-        <p class="text-xl md:text-2xl text-gray-300 mb-8 max-w-2xl mx-auto">The ultimate collection of Predator films from across the galaxy</p>
-        <button class="btn bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-3 px-8 rounded-full text-lg transition-all duration-300 transform hover:scale-105">
-          Start Watching
         </button>
       </div>
     </div>
