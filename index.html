@@ -161,20 +161,35 @@
   </header>
 
   <!-- Hero Section with video background -->
-  <section class="relative h-80 md:h-screen max-h-[800px] overflow-hidden">
-    <video autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover z-0">
-      <source src="https://imdb-video.media-imdb.com/vi1860878873/1434659607842-pgv4ql-1654611126478.mp4?Expires=1760151641&Signature=t1gMw-ZzU5hZOOxwmL-wdbAwyjwbX8DN76a1r2fJr~aYNjvA-8htZeBLG2pHx7LztBklvsCAf-7s4nZStO-5yojWM-ioN2FK2SFhixk46qNEeAOEa9WR6i518rfHiay3eRva-3MQkiwVF5sojJlP5F9db-JkVTOx56LnT8qyPDfaifwfz~mCl9cEn6z4gxxP65pHOdwKxYKY1xfwzDGgzjlRaaq4HOLF4TUR~wNH3FMw86Ej~B5LHmfFVpCbpnDzNz3MwNa86qYlEOlLIqjGmD5E4B67mpzWsGJSQr~3CXiJfbUpz4V9EH872N1lH5ezHeUTDpljzw1dHWQFLcZpWg__&Key-Pair-Id=APKAIFLZBVQZ24NQH3KA" type="video/mp4">
-      Your browser does not support the video tag.
-    </video>
-    <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/70 to-transparent z-10"></div>
-    <div class="absolute inset-0 flex items-center justify-center z-20 px-4">
-      <div class="text-center max-w-4xl">
-        <h2 class="text-5xl md:text-7xl font-bold text-yellow-500 mb-6 glow tracking-wider">EXPLORE THE HUNT</h2>
-        <p class="text-xl md:text-2xl text-gray-300 mb-8 max-w-2xl mx-auto">The ultimate collection of Predator films from across the galaxy</p>
+ <section class="mb-12 relative overflow-hidden rounded-xl aspect-video">
+    <div class="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent z-10"></div>
+
+    <!-- Responsive Video Wrapper -->
+    <div class="absolute inset-0 overflow-hidden">
+      <iframe
+        class="absolute top-1/2 left-1/2 w-[120%] h-[120%] -translate-x-1/2 -translate-y-1/2"
+        src="https://www.youtube.com/embed/iBhpNZZ-Wwo?autoplay=1&mute=1&loop=1&playlist=iBhpNZZ-Wwo&controls=0&modestbranding=1"
+        title="YouTube video player"
+        frameborder="0"
+        allow="autoplay; encrypted-media"
+        allowfullscreen>
+      </iframe>
+    </div>
+
+    <!-- Overlay Content -->
+    <div class="absolute bottom-0 left-0 z-20 p-6 md:p-8">
+      <h2 class="text-3xl md:text-5xl font-bold mb-2 gradient-text">EXPLORE THE HUNT</h2>
+      <p class="text-gray-300 mb-4 max-w-lg">
+        The ultimate collection of Predator films from across the galaxy
+      </p>
+      <div class="flex space-x-3">
+        <button class="bg-yellow-600 hover:bg-yellow-700 text-black font-semibold py-2 px-6 rounded-full transition flex items-center">
+          <i class="fas fa-play mr-2"></i> Play All
+        </button>
       </div>
     </div>
-    <div class="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-gray-900 to-transparent z-20"></div>
   </section>
+</main>
 
   <!-- Back to Top Button -->
   <div class="back-to-top" id="backToTop">
@@ -253,10 +268,10 @@
           <a href="#" class="text-gray-400 hover:text-yellow-500 transition">
             <i class="fab fa-twitter"></i>
           </a>
-          <a href="#" class="text-gray-400 hover:text-yellow-500 transition">
+          <a href="https://www.instagram.com/stark_4152" class="text-gray-400 hover:text-yellow-500 transition">
             <i class="fab fa-instagram"></i>
           </a>
-          <a href="#" class="text-gray-400 hover:text-yellow-500 transition">
+          <a href="https://www.youtube.com/channel/UCYwTAs1PRVHbq4LnCHEEicw" class="text-gray-400 hover:text-yellow-500 transition">
             <i class="fab fa-youtube"></i>
           </a>
         </div>
@@ -269,19 +284,10 @@
 
   <script>
     // Movie data with additional details
-    const movies = [
-      { 
-        title: "Prey (2022)", 
-        video: "https://sipt.modulateacceleration.cfd:443/v4/pq/tyxgh/index-f2-v1-a1.txt", 
-        image: "https://assets.scriptslug.com/live/img/x/posters/48815/prey-2022_9abc2c4a36.jpg",
-        year: 2022,
-        rating: 4.5,
-        duration: "1h 40m",
-        description: "Set in the Comanche Nation 300 years ago, a skilled warrior fights to protect her tribe from a highly evolved alien predator."
-      },
+    const movies = [ 
       { 
         title: "Predator (1987)", 
-        video: "https://smeb.financialapproximate.shop:443/v4/61/xo8k3/index-f1-v1-a1.txt", 
+        video: "https://s1.phim1280.tv/20231017/1gbOVEhW/index.m3u8", 
         image: "https://xl.movieposterdb.com/23_02/1987/93773/xl_predator-movie-poster_4859bafd.jpg",
         year: 1987,
         rating: 4.0,
@@ -290,7 +296,7 @@
       },
       { 
         title: "Predator 2 (1990)", 
-        video: "https://sojg.generatortransactor.cfd:443/v4/ox/kvj9z/index-f2-v1-a1.txt", 
+        video: "https://s3.phim1280.tv/20240624/yoFIBWg7/index.m3u8", 
         image: "https://alternativemovieposters.com/wp-content/uploads/2020/09/GlenStone_Predator2.jpg",
         year: 1990,
         rating: 3.5,
@@ -308,7 +314,7 @@
       },
       { 
         title: "Aliens vs Predator: Requiem (2007)", 
-        video: "https://sbi6.cryptologyperception.cyou/v4/ck/kfpnr/index-f1-v1-a1.txt", 
+        video: "https://s2.phim1280.tv/20231111/NIpLkom4/index.m3u8", 
         image: "https://image.tmdb.org/t/p/original/vytCzqIRMVAOF92rlmRXiTacR4N.jpg",
         year: 2007,
         rating: 2.5,
@@ -317,7 +323,7 @@
       },
       { 
         title: "Predators (2010)", 
-        video: "https://sipt.sparkcore.space/v4/np/i8paq/index-f1-v1-a1.txt", 
+        video: "https://s2.phim1280.tv/20231024/ix3ALqWG/index.m3u8", 
         image: "https://alternativemovieposters.com/wp-content/uploads/2025/01/Aldo-Galvan_Predators.jpg",
         year: 2010,
         rating: 3.5,
@@ -326,12 +332,30 @@
       },
       { 
         title: "The Predator (2018)", 
-        video: "https://s8v3.automationexclusive.shop:443/v4/us/kviy1/index-f2-v1-a1.txt", 
+        video: "https://s2.phim1280.tv/20231024/lwjj0aGW/index.m3u8", 
         image: "https://i.ebayimg.com/images/g/ElYAAOSwvGZcNTdI/s-l1200.jpg",
         year: 2018,
         rating: 3.0,
         duration: "1h 47m",
         description: "A young boy accidentally triggers the universe's most lethal hunters' return to Earth, and only a team of ex-soldiers can prevent the end of the human race."
+      },
+      { 
+        title: "Prey (2022)", 
+        video: "https://cv9fqnu812v.harmonynetworkglobal.shop/lsgkpxzmgecn8yyd/hls3/01/00485/xvti8nd7mcrm_h/master.txt", 
+        image: "https://assets.scriptslug.com/live/img/x/posters/48815/prey-2022_9abc2c4a36.jpg",
+        year: 2022,
+        rating: 4.5,
+        duration: "1h 40m",
+        description: "Set in the Comanche Nation 300 years ago, a skilled warrior fights to protect her tribe from a highly evolved alien predator."
+      },
+      { 
+        title: "Predator: Badlands (2025)", 
+        video: "https://cv9fqnu812v.harmonynetworkglobal.shop/lsgkpxzmgecn8yyd/hls3/01/00485/xvti8nd7mcrm_h/master.txt", 
+        image: "https://i0.wp.com/bloody-disgusting.com/wp-content/uploads/2025/07/GwvnsG9XkAAUMc5.jpg?resize=740%2C925&ssl=1",
+        year: 2025,
+        rating: 7.5,
+        duration: "1h 47m",
+        description: "A young Predator outcast from his clan finds an unlikely ally on his journey in search of the ultimate adversary."
       },
     ];
 
