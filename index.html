@@ -146,21 +146,44 @@
     .back-to-top.active { opacity:1; visibility:visible; }
     .back-to-top:hover { background:var(--primary-dark); transform: translateY(-3px); }
 
-    /* hero background etc omitted for brevity (kept in original file) */
-    /* ... remaining styles unchanged ... */
-
     /* Small responsive fix */
     @media (max-width:640px) {
       .movie-card .card-img { height: 16rem; }
     }
+
+    /* Illumination modal styles (keeps modal look consistent) */
+    .modal-backdrop { position:fixed; inset:0; background: rgba(0,0,0,0.9); display:none; align-items:center; justify-content:center; z-index:9999; }
+    .modal-backdrop.active { display:flex; }
+    .modal-card { width:92%; max-width:980px; border-radius:12px; overflow:hidden; background:#0b1220; box-shadow:0 30px 80px rgba(0,0,0,0.7); }
+    .player-wrapper { position:relative; padding-bottom:56.25%; height:0; background:#000; }
+    .player-wrapper video, .player-wrapper iframe { position:absolute; inset:0; width:100%; height:100%; }
+
+    .player-meta { display:flex; justify-content:space-between; gap:12px; padding:14px; color:#ddd; align-items:flex-start; }
+    .player-meta .meta-left { max-width:65%; }
+    .player-meta h3 { margin:0; font-size:1.125rem; }
+    .player-meta p { margin:6px 0 0 0; color:#9CA3AF; font-size:0.92rem; }
+
+    .controls-row { display:flex; gap:8px; align-items:center; }
+
+    .btn {
+      background:transparent; border:1px solid var(--primary); color:var(--primary);
+      padding:8px 12px; border-radius:8px; cursor:pointer;
+    }
+    .btn:hover { background: rgba(245,158,11,0.06); }
+
+    .hidden { display:none; }
+
   </style>
+
+  <!-- HLS.js for HLS playback in modal -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.1/dist/hls.min.js"></script>
 </head>
 <body class="bg-gray-900 text-gray-100 dark-mode-transition">
   <!-- Header with navigation -->
   <header class="sticky top-0 z-50 bg-gray-900/90 backdrop-blur-sm border-b border-yellow-600/20 shadow-lg">
     <div class="container mx-auto px-4 py-3 flex justify-between items-center">
       <div class="flex items-center space-x-2">
-        <i class="fas fa-alien-monster text-yellow-500 text-2xl"></i>
+<i class="fas fa-mask text-gray-900 text-2xl" style="text-shadow:0 0 6px #ff0000;"></i>
         <h1 class="text-2xl font-bold text-yellow-500 glow">PREDATOR UNIVERSE</h1>
       </div>
       <div class="flex items-center space-x-4">
@@ -198,7 +221,7 @@
         The ultimate collection of Predator films from across the galaxy
       </p>
       <div class="flex space-x-3">
-        <button class="bg-yellow-600 hover:bg-yellow-700 text-black font-semibold py-2 px-6 rounded-full transition flex items-center">
+        <button id="playAllBtn" class="bg-yellow-600 hover:bg-yellow-700 text-black font-semibold py-2 px-6 rounded-full transition flex items-center">
           <i class="fas fa-play mr-2"></i> Play All
         </button>
       </div>
@@ -271,7 +294,6 @@
       <div class="flex flex-col md:flex-row justify-between items-center">
         <div class="mb-4 md:mb-0">
           <h3 class="text-xl font-bold text-yellow-500 flex items-center">
-            <i class="fas fa-alien-monster mr-2"></i> PREDATOR UNIVERSE
           </h3>
           <p class="text-gray-400 mt-2">The ultimate collection of Predator films</p>
         </div>
@@ -291,10 +313,42 @@
         </div>
       </div>
       <div class="mt-8 text-center text-gray-500 text-sm">
-        <p>© 2023 Predator Cinematic Universe. All rights reserved.</p>
+        <p>© Predator Cinematic Universe. All rights reserved.</p>
       </div>
     </div>
   </footer>
+
+  <!-- === ILLUMINATION-STYLE MODAL PLAYER === -->
+  <div id="playbackModal" class="modal-backdrop" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true">
+      <button id="closeModalBtn" class="absolute top-4 right-4 z-50 text-white hover:text-yellow-400 text-2xl bg-black/30 rounded-full p-2">
+        <i class="fas fa-times"></i>
+      </button>
+
+      <div class="player-wrapper" id="playerWrapper">
+        <video id="modalVideo" controls playsinline style="width:100%;height:100%;background:#000"></video>
+      </div>
+
+      <div class="player-meta">
+        <div class="meta-left">
+          <h3 id="modalTitle">Title</h3>
+          <p id="modalDesc" class="text-sm">Description</p>
+        </div>
+        <div class="controls-row">
+          <button id="prevBtn" class="btn"><i class="fas fa-step-backward mr-2"></i>Prev</button>
+          <button id="playPauseBtn" class="btn"><i class="fas fa-play mr-2"></i>Play</button>
+          <button id="nextBtn" class="btn">Next<i class="fas fa-step-forward ml-2"></i></button>
+          <button id="fullscreenBtn" class="btn"><i class="fas fa-expand"></i></button>
+          <button id="muteBtn" class="btn"><i class="fas fa-volume-up"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Spinner (used when opening modal) -->
+  <div id="loading-spinner" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 hidden">
+    <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-yellow-500"></div>
+  </div>
 
   <script>
     // Movie data (unchanged)
@@ -310,7 +364,7 @@
       { title: "Predator: Badlands (2025)", video: "https://soq.bionyx.cyou:443/v4/pk8/wkzfk5/index-f2-v1-a1.txt", image: "https://i0.wp.com/bloody-disgusting.com/wp-content/uploads/2025/07/GwvnsG9XkAAUMc5.jpg?resize=740%2C925&ssl=1", year: 2025, rating: 7.5, duration: "1h 47m", description: "A young Predator outcast from his clan finds an unlikely ally on his journey in search of the ultimate adversary." },
     ];
 
-    // DOM Elements
+    // DOM Elements (existing)
     const moviesGrid = document.getElementById('moviesGrid');
     const loadingState = document.getElementById('loadingState');
     const searchBar = document.getElementById('searchBar');
@@ -321,16 +375,277 @@
     const darkModeToggle = document.getElementById('darkModeToggle');
     const sortSelect = document.getElementById('sortSelect');
     const filterButtons = document.querySelectorAll('.filter-btn');
+    const playAllBtn = document.getElementById('playAllBtn');
 
-    document.addEventListener('DOMContentLoaded', () => {
-      setTimeout(() => {
-        loadingState.classList.add('hidden');
-        renderMovies(movies);
-      }, 800);
-      setupEventListeners();
+    // Modal elements (Illumination)
+    const playbackModal = document.getElementById('playbackModal');
+    const playerWrapper = document.getElementById('playerWrapper');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalDesc = document.getElementById('modalDesc');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    const muteBtn = document.getElementById('muteBtn');
+    const loadingSpinner = document.getElementById('loading-spinner');
+
+    let currentHls = null;
+    let currentFiltered = [];
+    let currentIndex = null;
+    // keep track of what movies list is currently displayed (for prev/next)
+    let visibleMovies = [];
+
+    /* helpers */
+    function isMP4(u) { return /\.mp4($|\?)/i.test((u||'')); }
+    function isHls(u) {
+      if (!u) return false;
+      return u.includes('.m3u8') || u.includes('index-') || /index.*\.txt/i.test(u) || u.includes('manifest') || u.includes('master');
+    }
+    function isYouTube(u) {
+      if (!u) return false;
+      return u.includes('youtube.com') || u.includes('youtu.be') || u.includes('youtube-nocookie.com') || u.includes('/embed/');
+    }
+
+    /* reset player container */
+    function resetPlayerContainer() {
+      if (currentHls) {
+        try { currentHls.destroy(); } catch(e) {}
+        currentHls = null;
+      }
+      playerWrapper.innerHTML = `<video id="modalVideo" controls playsinline style="width:100%;height:100%;background:#000"></video>`;
+    }
+
+    function showModal() {
+      playbackModal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    function hideModal() {
+      playbackModal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+    function showError(msg) { console.warn(msg); }
+
+    /* Core: open player using Illumination logic */
+    function openPlayer(list, index) {
+      if (!Array.isArray(list) || list.length === 0 || index == null || index < 0 || index >= list.length) {
+        showError('Invalid playback request');
+        return;
+      }
+      currentFiltered = list;
+      currentIndex = index;
+      const movie = list[index];
+      if (!movie) { showError('Movie missing'); return; }
+
+      modalTitle.textContent = movie.title || '';
+      modalDesc.textContent = movie.description || '';
+
+      resetPlayerContainer();
+      showModal();
+      loadingSpinner.classList.remove('hidden');
+
+      // choose source
+      let src = '';
+      if (typeof movie.video === 'object' && movie.video !== null) {
+        src = movie.video.high || movie.video.medium || movie.video.low || Object.values(movie.video)[0];
+      } else {
+        src = movie.video;
+      }
+      if (!src) {
+        showError('No video source');
+        setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=`, 500);
+        loadingSpinner.classList.add('hidden');
+        return;
+      }
+
+      const lc = (src||'').toLowerCase();
+
+      // iframe-hosted common hosts
+      if (lc.includes('streamtape.com') || lc.includes('dood') || lc.includes('vidcdn') || lc.includes('ok.ru') || lc.includes('mega.nz') || lc.includes('openload') || lc.includes('drive.google.com')) {
+        playerWrapper.innerHTML = `<iframe src="${src}" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
+        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+        loadingSpinner.classList.add('hidden');
+        return;
+      }
+
+      // youtube
+      if (isYouTube(src)) {
+        let embed = src;
+        try {
+          if (src.includes('watch') && src.includes('v=')) {
+            const v = new URLSearchParams(src.split('?')[1]).get('v');
+            if (v) embed = `https://www.youtube.com/embed/${v}`;
+          } else if (src.includes('youtu.be/')) {
+            const p = src.split('youtu.be/')[1].split(/[?&]/)[0];
+            if (p) embed = `https://www.youtube.com/embed/${p}`;
+          }
+        } catch(e){}
+        playerWrapper.innerHTML = `<iframe src="${embed}?autoplay=1&modestbranding=1&rel=0" width="100%" height="100%" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>`;
+        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+        loadingSpinner.classList.add('hidden');
+        return;
+      }
+
+      // HLS
+      if (isHls(src)) {
+        const v = document.getElementById('modalVideo');
+        if (!v) { showError('Video element missing'); loadingSpinner.classList.add('hidden'); return; }
+        if (window.Hls && Hls.isSupported()) {
+          currentHls = new Hls();
+          try {
+            currentHls.loadSource(src);
+            currentHls.attachMedia(v);
+          } catch (e) { console.warn('HLS attach error', e); }
+          currentHls.on(Hls.Events.MANIFEST_PARSED, function() {
+            v.play().catch(()=>{});
+            playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+            loadingSpinner.classList.add('hidden');
+          });
+          currentHls.on(Hls.Events.ERROR, function(event, data) {
+            console.warn('HLS error', data);
+            if (data && data.fatal) {
+              try { currentHls.destroy(); } catch(e){}
+              currentHls = null;
+              showError('HLS fatal error — redirecting to player.html');
+              setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
+            }
+          });
+        } else if (v.canPlayType && v.canPlayType('application/vnd.apple.mpegurl')) {
+          v.src = src;
+          v.play().catch(()=>{});
+          playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+          loadingSpinner.classList.add('hidden');
+        } else {
+          showError('HLS not supported — redirecting to player.html');
+          setTimeout(()=> window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`, 700);
+          loadingSpinner.classList.add('hidden');
+        }
+        attachVideoListeners(); // attach to video element
+        return;
+      }
+
+      // MP4
+      if (isMP4(src)) {
+        const v = document.getElementById('modalVideo');
+        if (!v) { window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`; loadingSpinner.classList.add('hidden'); return; }
+        v.src = src;
+        v.play().catch(()=>{});
+        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+        loadingSpinner.classList.add('hidden');
+        attachVideoListeners();
+        return;
+      }
+
+      // fallback
+      loadingSpinner.classList.add('hidden');
+      window.location.href = `player.html?title=${encodeURIComponent(movie.title||'')}&video=${encodeURIComponent(src||'')}`;
+    }
+
+    /* Controls */
+    function togglePlayPause() {
+      const v = document.getElementById('modalVideo');
+      if (!v) return;
+      if (v.paused) {
+        v.play().catch(()=>{});
+        playPauseBtn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+      } else {
+        v.pause();
+        playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
+      }
+    }
+    function playNext() {
+      if (!currentFiltered || currentFiltered.length === 0) currentFiltered = visibleMovies.slice();
+      if (currentIndex == null) return showError('No current movie');
+      if (currentIndex < currentFiltered.length - 1) openPlayer(currentFiltered, currentIndex + 1);
+      else showError('No next movie');
+    }
+    function playPrev() {
+      if (!currentFiltered || currentFiltered.length === 0) currentFiltered = visibleMovies.slice();
+      if (currentIndex == null) return showError('No current movie');
+      if (currentIndex > 0) openPlayer(currentFiltered, currentIndex - 1);
+      else showError('No previous movie');
+    }
+    function toggleFullscreen() {
+      const el = document.getElementById('modalVideo') || playerWrapper.querySelector('iframe');
+      if (!el) return;
+      if (!document.fullscreenElement) {
+        (el.requestFullscreen || playerWrapper.requestFullscreen).call(el).catch(()=> showError('Fullscreen failed'));
+      } else {
+        document.exitFullscreen();
+      }
+    }
+    function toggleMute() {
+      const v = document.getElementById('modalVideo');
+      if (!v) return;
+      v.muted = !v.muted;
+      muteBtn.innerHTML = v.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
+    }
+
+    /* Close modal & cleanup */
+    function closeModalHandler() {
+      if (currentHls) {
+        try { currentHls.destroy(); } catch(e) {}
+        currentHls = null;
+      }
+      const v = document.getElementById('modalVideo');
+      if (v) {
+        try { v.pause(); } catch(e){}
+        try { v.removeAttribute('src'); v.load(); } catch(e){}
+      }
+      resetPlayerContainer();
+      hideModal();
+      currentIndex = null;
+      currentFiltered = [];
+      playPauseBtn.innerHTML = '<i class="fas fa-play mr-2"></i>Play';
+    }
+
+    /* Events wiring for modal controls */
+    playPauseBtn.addEventListener('click', togglePlayPause);
+    nextBtn.addEventListener('click', playNext);
+    prevBtn.addEventListener('click', playPrev);
+    fullscreenBtn.addEventListener('click', toggleFullscreen);
+    muteBtn.addEventListener('click', toggleMute);
+
+    closeModalBtn.addEventListener('click', closeModalHandler);
+    playbackModal.addEventListener('click', function(e){
+      if (e.target === playbackModal) closeModalHandler();
     });
 
+    // Keyboard shortcuts when modal active
+    document.addEventListener('keydown', (e) => {
+      if (!playbackModal.classList.contains('active')) return;
+      switch (e.key.toLowerCase()) {
+        case 'escape': closeModalHandler(); break;
+        case ' ': e.preventDefault(); togglePlayPause(); break;
+        case 'arrowright': { const v = document.getElementById('modalVideo'); if (v) v.currentTime = Math.max(0, v.currentTime + 10); break; }
+        case 'arrowleft': { const v = document.getElementById('modalVideo'); if (v) v.currentTime = Math.max(0, v.currentTime - 10); break; }
+        case 'f': toggleFullscreen(); break;
+        case 'm': toggleMute(); break;
+        case 'n': playNext(); break;
+        case 'p': playPrev(); break;
+      }
+    });
+
+    /* Attach video timeupdate/ended listeners */
+    function attachVideoListeners() {
+      const v = document.getElementById('modalVideo');
+      if (!v) return;
+      v.removeEventListener('timeupdate', onTimeUpdate);
+      v.addEventListener('timeupdate', onTimeUpdate);
+      v.removeEventListener('ended', onEnded);
+      v.addEventListener('ended', onEnded);
+    }
+    function onTimeUpdate() {
+      // if there is a global progress UI later, update it here
+    }
+    function onEnded() {
+      // set play button to replay
+      playPauseBtn.innerHTML = '<i class="fas fa-redo mr-2"></i>Replay';
+    }
+
+    /* Render movies and wire clicks to open modal instead of redirect */
     function renderMovies(moviesToRender) {
+      visibleMovies = moviesToRender.slice(); // copy current displayed list
       moviesGrid.innerHTML = '';
       if (moviesToRender.length === 0) {
         moviesGrid.innerHTML = `
@@ -342,10 +657,10 @@
         `;
         return;
       }
-      moviesToRender.forEach(movie => {
+
+      moviesToRender.forEach((movie, idx) => {
         const movieCard = document.createElement('div');
         movieCard.className = 'movie-card group bg-transparent';
-        // internal structure tailored for 3D effect:
         movieCard.innerHTML = `
           <div class="card-inner relative rounded-lg overflow-hidden">
             <div class="relative">
@@ -353,7 +668,7 @@
               <div class="card-overlay">
                 <div class="transform translate-y-4 transition-transform duration-300">
                   <p class="text-sm text-gray-300 line-clamp-3 mb-3">${movie.description}</p>
-                  <button class="btn bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-medium py-2 px-4 rounded-full text-sm w-full transition-all">
+                  <button class="watch-now-btn btn bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-medium py-2 px-4 rounded-full text-sm w-full transition-all">
                     Watch Now
                   </button>
                 </div>
@@ -371,11 +686,18 @@
           </div>
         `;
 
-        // click to player
+        // click to open modal player using the current visible list and index
         movieCard.addEventListener('click', (e) => {
-          // prevent click when clicking the Watch Now button? still navigate
-          const url = `player.html?title=${encodeURIComponent(movie.title)}&video=${encodeURIComponent(movie.video)}`;
-          window.location.href = url;
+          // if user clicked a link or interactive element inside card, still open modal
+          // show spinner while we prepare
+          loadingSpinner.classList.remove('hidden');
+          // open modal with visibleMovies (the current displayed list) and idx
+          setTimeout(() => {
+            openPlayer(visibleMovies, idx);
+            // attach listeners to the video (allow slight delay)
+            setTimeout(() => attachVideoListeners(), 200);
+            loadingSpinner.classList.add('hidden');
+          }, 80);
         });
 
         moviesGrid.appendChild(movieCard);
@@ -385,6 +707,7 @@
       attach3DEffectToCards();
     }
 
+    /* 3D hover effect re-used from original code */
     function attach3DEffectToCards() {
       const cards = document.querySelectorAll('.movie-card');
       cards.forEach(card => {
@@ -394,47 +717,37 @@
         let rect = null;
         const maxRotate = 12; // degrees
         const depthPop = 36; // px for poster pop
-        let isPointerInside = false;
 
         function updateRect() { rect = card.getBoundingClientRect(); }
 
         function handleEnter() {
           updateRect();
           card.classList.add('is-active','has-shine');
-          isPointerInside = true;
           inner.style.transition = 'transform 0.12s ease-out';
           img.style.transition = 'transform 0.18s ease-out, box-shadow 0.18s ease-out';
         }
-
         function handleMove(e) {
           if (!rect) updateRect();
           const x = e.clientX - rect.left;
           const y = e.clientY - rect.top;
           const cx = rect.width / 2;
           const cy = rect.height / 2;
-          // normalized [-1,1]
           const nx = (x - cx) / cx;
           const ny = (y - cy) / cy;
           const rotateY = nx * maxRotate;
           const rotateX = -ny * maxRotate;
-          // apply rotation to inner container
           inner.style.transform = `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(0px)`;
-          // poster pop
           const pop = depthPop * (1 - Math.abs((Math.abs(nx) + Math.abs(ny)) / 2));
           img.style.transform = `translateZ(${pop}px) scale(1.02)`;
-          // shine position
           if (shine) {
             const px = (x / rect.width) * 100;
             const py = (y / rect.height) * 100;
-            // rotate shine to be perpendicular to pointer direction
             const angle = Math.atan2(y - cy, x - cx) * (180 / Math.PI) + 90;
             shine.style.transform = `translate(-25%,-25%) rotate(${angle}deg) translate(${px/5}%, ${py/5}%)`;
             shine.style.opacity = 1;
           }
         }
-
         function handleLeave() {
-          isPointerInside = false;
           card.classList.remove('is-active','has-shine');
           inner.style.transition = 'transform 0.6s cubic-bezier(.2,.9,.2,1)';
           inner.style.transform = `perspective(1200px) rotateX(0deg) rotateY(0deg) translateZ(0px)`;
@@ -443,29 +756,21 @@
           if (shine) shine.style.opacity = 0;
         }
 
-        // pointer & mouse
         card.addEventListener('mouseenter', handleEnter);
         card.addEventListener('mousemove', handleMove);
         card.addEventListener('mouseleave', handleLeave);
 
-        // touch fallback (simple)
-        card.addEventListener('touchstart', (ev) => {
-          updateRect();
-          handleEnter();
-        }, {passive:true});
-        card.addEventListener('touchmove', (ev) => {
-          const touch = ev.touches[0];
-          if (touch) handleMove(touch);
-        }, {passive:true});
-        card.addEventListener('touchend', () => {
-          handleLeave();
-        });
-        // update rect on resize/scroll to keep coordinates accurate
+        // touch fallbacks
+        card.addEventListener('touchstart', (ev) => { updateRect(); handleEnter(); }, {passive:true});
+        card.addEventListener('touchmove', (ev) => { const t = ev.touches[0]; if (t) handleMove(t); }, {passive:true});
+        card.addEventListener('touchend', () => handleLeave());
+
         window.addEventListener('resize', updateRect);
         window.addEventListener('scroll', updateRect, true);
       });
     }
 
+    /* Filtering & sorting (preserve original behavior) */
     function filterAndSortMovies() {
       const searchTerm = searchInput.value.toLowerCase();
       const selectedYear = document.querySelector('.filter-btn.active')?.dataset.year || 'all';
@@ -485,59 +790,42 @@
         );
       }
       switch (sortOption) {
-        case 'year-asc':
-          filteredMovies.sort((a, b) => a.year - b.year);
-          break;
-        case 'year-desc':
-          filteredMovies.sort((a, b) => b.year - a.year);
-          break;
-        case 'title-asc':
-          filteredMovies.sort((a, b) => a.title.localeCompare(b.title));
-          break;
-        case 'title-desc':
-          filteredMovies.sort((a, b) => b.title.localeCompare(a.title));
-          break;
+        case 'year-asc': filteredMovies.sort((a,b) => a.year - b.year); break;
+        case 'year-desc': filteredMovies.sort((a,b) => b.year - a.year); break;
+        case 'title-asc': filteredMovies.sort((a,b) => a.title.localeCompare(b.title)); break;
+        case 'title-desc': filteredMovies.sort((a,b) => b.title.localeCompare(a.title)); break;
       }
       renderMovies(filteredMovies);
     }
 
+    /* Back to top */
     function handleBackToTop() {
       const backToTop = document.getElementById('backToTop');
       window.addEventListener('scroll', () => {
-        if (window.pageYOffset > 300) {
-          backToTop.classList.add('active');
-        } else {
-          backToTop.classList.remove('active');
-        }
+        if (window.pageYOffset > 300) backToTop.classList.add('active');
+        else backToTop.classList.remove('active');
       });
-      backToTop.addEventListener('click', () => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      });
+      backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
     }
 
+    /* Setup listeners (preserve original wiring) */
     function setupEventListeners() {
       handleBackToTop();
       searchToggle.addEventListener('click', () => {
         searchBar.classList.toggle('hidden');
-        if (!searchBar.classList.contains('hidden')) {
-          searchInput.focus();
-        }
+        if (!searchBar.classList.contains('hidden')) searchInput.focus();
       });
-      filterToggle.addEventListener('click', () => {
-        filterPanel.classList.toggle('hidden');
-      });
+      filterToggle.addEventListener('click', () => filterPanel.classList.toggle('hidden'));
       darkModeToggle.addEventListener('click', () => {
         document.body.classList.toggle('bg-gray-100');
         document.body.classList.toggle('text-gray-900');
         document.body.classList.toggle('bg-gray-900');
         document.body.classList.toggle('text-gray-100');
         const icon = darkModeToggle.querySelector('i');
-        if (icon.classList.contains('fa-moon')) {
-          icon.classList.replace('fa-moon', 'fa-sun');
-        } else {
-          icon.classList.replace('fa-sun', 'fa-moon');
-        }
+        if (icon.classList.contains('fa-moon')) icon.classList.replace('fa-moon','fa-sun');
+        else icon.classList.replace('fa-sun','fa-moon');
       });
+
       searchInput.addEventListener('input', filterAndSortMovies);
       sortSelect.addEventListener('change', filterAndSortMovies);
       filterButtons.forEach(button => {
@@ -551,10 +839,29 @@
           filterAndSortMovies();
         });
       });
-      // Trigger default “All” filter on load
+
+      // play all opens the modal at first movie
+      if (playAllBtn) {
+        playAllBtn.addEventListener('click', () => {
+          openPlayer(movies, 0);
+          setTimeout(()=> attachVideoListeners(), 200);
+        });
+      }
+
+      // default All filter
       const defaultBtn = document.querySelector('.filter-btn[data-year="all"]');
       if (defaultBtn) defaultBtn.click();
     }
+
+    /* Initialization */
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        loadingState.classList.add('hidden');
+        renderMovies(movies);
+      }, 800);
+      setupEventListeners();
+    });
+
   </script>
 </body>
 </html>
